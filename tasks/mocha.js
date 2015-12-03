@@ -121,6 +121,8 @@ module.exports = function(grunt) {
     var options = this.options({
       // Output console.log calls
       log: false,
+      // Fail if no tests run
+      failOnNoTests: false,
       // Mocha reporter
       reporter: 'Dot',
       // Default PhantomJS timeout.
@@ -281,7 +283,29 @@ module.exports = function(grunt) {
 
       var stats = helpers.reduceStats(testStats);
 
-      if (stats.failures === 0 && stats.test) {
+      if (options.failOnNoTests && stats.tests === 0){
+
+        var failMsg = stats.tests + ' tests ran (' +
+          stats.duration + 's)';
+
+        // Show Growl notice, if avail
+        growl(failMsg, {
+          image: asset('growl/error.png'),
+          title: failMsg,
+          priority: 3
+        });
+
+        // Bail tests if bail option is true
+        if (options.bail) {
+          grunt.warn(failMsg);
+        } else {
+          grunt.log.error(failMsg);
+        }
+
+        // Async test fail
+        done(false);
+
+      } else if (stats.failures === 0) {
         var okMsg = stats.tests + ' passed!' + ' (' + stats.duration + 's)';
 
         if (options.growlOnSuccess) {
