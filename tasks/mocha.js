@@ -281,7 +281,7 @@ module.exports = function(grunt) {
 
       var stats = helpers.reduceStats(testStats);
 
-      if (stats.failures === 0) {
+      if (stats.failures === 0 && stats.test) {
         var okMsg = stats.tests + ' passed!' + ' (' + stats.duration + 's)';
 
         if (options.growlOnSuccess) {
